@@ -52,8 +52,6 @@ class BindInfo:
     def _get_dst_prop(self):
         if isinstance(self.dst_prop, str):
             return getattr(self.data_receiver, self.dst_prop)
-        elif callable(self.dst_prop):
-            return self.dst_prop()
         raise BindingException(f"property {self.dst_prop} type invalid, must be str or callable")
 
     def _do_converter(self, value):
@@ -62,9 +60,8 @@ class BindInfo:
         return self.converter(value)
 
     def update(self):
-        if self._get_dst_prop() == self._do_converter(self._get_src_prop()):
-            return
-        self._set_dst_prop(self._do_converter(self._get_src_prop()))
+        if callable(self.dst_prop) or not (self._get_dst_prop() == self._do_converter(self._get_src_prop())):
+            self._set_dst_prop(self._do_converter(self._get_src_prop()))
 
     def is_equal(self, other, is_compare_converter: bool = True):
         is_equal = self.src_prop == other.src_prop and self.data_receiver == other.data_receiver and self.dst_prop == other.dst_prop
