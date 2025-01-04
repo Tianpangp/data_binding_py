@@ -117,6 +117,15 @@ class BindManager:
         data_provider.unregister_subscription(BindInfo(data_provider, src_prop, data_receiver, dst_prop))
         data_receiver.unregister_subscription(BindInfo(data_receiver, dst_prop, data_provider, src_prop))
 
+    @staticmethod
+    def change_converter(data_provider, src_prop: Union[str, callable], data_receiver, dst_prop: Union[str, callable], bind_type: BindType,
+                         converter: tuple[callable, callable]):
+        data_provider.unregister_subscription(BindInfo(data_provider, src_prop, data_receiver, dst_prop))
+        data_provider.register_subscription(BindInfo(data_provider, src_prop, data_receiver, dst_prop, converter[0]))
+        if bind_type == BindType.TWO_WAY:
+            data_receiver.unregister_subscription(BindInfo(data_receiver, dst_prop, data_provider, src_prop))
+            data_receiver.register_subscription(BindInfo(data_receiver, dst_prop, data_provider, src_prop, converter[1]))
+
 
 class Bindable:
     def __init__(self):
